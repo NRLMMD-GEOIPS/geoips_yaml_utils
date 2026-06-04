@@ -1,0 +1,51 @@
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"                          # object used to perform the build process
+
+# This is where you would specify a pre-build script from pyproject.toml/poetry.
+# [tool.poetry.build]
+# generate-setup-file = false  # I have no idea what this does
+# script = "build.py"  # This gets called as a python script prior to running build
+
+[tool.poetry]
+name = "geoips_yaml_utils" # package available at the root of the project
+version = "0.0.1"
+description = "GeoIPS YAML Utilities"
+authors = ["Coleman McClelland", "coleman.mcclelland@colostate.edu"]
+readme = "README.md"
+keywords = []
+license = "LICENSE" # required
+classifiers = [ # // list of PyPI trove classifiers to describe the project
+    "Programming Language :: Python :: 3",
+]
+repository = "https://github.com/NRLMMD-GEOIPS/geoips_yaml_utils"
+#documentation = "set the url"
+packages = [{include = "geoips_yaml_utils"}]
+
+# uses current version .postN and not incrementing
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+metadata = false # don't include local-version hash; date doesn't appear by deafult
+style = "pep440" # pep440 is default; can remove later on; used for : keeping 0.0.8 as the default install until 0.0.9 is out
+#style = "semver"
+#tag-branch = "feature-poetry"
+strict = false
+pattern = "(?x)^((?P<epoch>\\d+)!)?(?P<base>\\d+(\\.\\d+)*)([-._]?((?P<stage>[a-zA-Z]+)[-._]?(?P<revision>\\d+)?))?(\\+(?P<tagged_metadata>.+))?$"
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["*/_version.py"]
+
+[tool.poetry.dependencies] # Include any python dependencies here
+python = ">=3.11.0"    # mandatory to declare the required python version
+pyyaml = "*"           # Base requirement
+typer = "*"
+docstring_parser = "*"
+
+# doc group
+sphinxcontrib-typer = { version = "*", optional = true}
+
+[tool.poetry.extras]
+doc = [
+    "sphinxcontrib-typer", # Required for building documentation for the CLI, which uses typer
+]
