@@ -11,7 +11,7 @@ build-backend = "poetry_dynamic_versioning.backend"                          # o
 name = "geoips_yaml_utils" # package available at the root of the project
 version = "0.0.1"
 description = "GeoIPS YAML Utilities"
-authors = ["Coleman McClelland", "coleman.mcclelland@colostate.edu"]
+authors = ["Coleman McClelland <coleman.mcclelland@colostate.edu>"]
 readme = "README.md"
 keywords = []
 license = "LICENSE" # required
@@ -49,3 +49,6 @@ sphinxcontrib-typer = { version = "*", optional = true}
 doc = [
     "sphinxcontrib-typer", # Required for building documentation for the CLI, which uses typer
 ]
+
+[tool.black]
+extend-exclude = '_version\.py'
