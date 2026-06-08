@@ -183,12 +183,12 @@ def test_safe_load_nested_duplicate_key_raises():
                 "test1:\n"
                 "    data0: !ENV ${TEST_VAR_ABC:strong_pwd_default}"
                 "/somethingelse/${TEST_VAR_XYZ:tail_default}\n"
-                "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+                "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
             {
                 "test1": {
                     "data0": "strong_pwd_default/somethingelse/tail_default",
-                    "data1": "0.0.0.0",
+                    "data1": "1.2.3.456",
                 }
             },
             id="default_alphanumeric_value",
@@ -200,12 +200,12 @@ def test_safe_load_nested_duplicate_key_raises():
                 "test1:\n"
                 "    data0: !ENV ${TEST_VAR_ABC:35xV*+/\\gPEFGxrg}"
                 "/somethingelse/${TEST_VAR_XYZ:tail_default}\n"
-                "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+                "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
             {
                 "test1": {
                     "data0": "35xV*+/\\gPEFGxrg/somethingelse/tail_default",
-                    "data1": "0.0.0.0",
+                    "data1": "1.2.3.456",
                 }
             },
             id="default_contains_backslash",
@@ -217,9 +217,9 @@ def test_safe_load_nested_duplicate_key_raises():
                 "test1:\n"
                 "    data0: !ENV ${TEST_VAR_ABC:35xV*+/\\gPEFGxrg}"
                 "/somethingelse/${TEST_VAR_XYZ:tail_default}\n"
-                "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+                "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
-            {"test1": {"data0": "test/somethingelse/tail_default", "data1": "0.0.0.0"}},
+            {"test1": {"data0": "test/somethingelse/tail_default", "data1": "1.2.3.456"}},
             id="env_var_overrides_default",
         ),
         pytest.param(
@@ -229,12 +229,12 @@ def test_safe_load_nested_duplicate_key_raises():
                 "test1:\n"
                 "    data0: !ENV ${TEST_VAR_ABC:strong_pwd_default}"
                 "/somethingelse/${TEST_VAR_XYZ:tail_default}\n"
-                "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+                "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
             {
                 "test1": {
                     "data0": "myWeakPassword/somethingelse/tail_default",
-                    "data1": "0.0.0.0",
+                    "data1": "1.2.3.456",
                 }
             },
             id="env_var_overrides_alphanumeric_default",
@@ -246,7 +246,7 @@ def test_safe_load_nested_duplicate_key_raises():
                 "test1:\n"
                 "    data0: !ENV ${TEST_VAR_ABC:strong_pwd_default}"
                 "/somethingelse/${TEST_VAR_XYZ}\n"
-                "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+                "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
             {"test1": {"data0": "1value/somethingelse/2values", "data1": "2values"}},
             id="two_vars_both_set",
@@ -298,7 +298,7 @@ def test_envvarloader_resolves_special_chars_in_var_name(monkeypatch):
         "test1:\n"
         "    data0: !ENV ${ENV*)__TAG101sfdarg:NoHtnnmEuluGp2boPvGQkGrXqTAtBvIVz"
         ".,hujn+000-!!#9VRmV65}/somethingelse/${TEST_VAR_XYZ}\n"
-        "    data1: !ENV ${TEST_VAR_XYZ:0.0.0.0}\n"
+        "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
     )
     result = yaml.load(yaml_input, Loader=yaml.EnvVarLoader)
     assert result == {
