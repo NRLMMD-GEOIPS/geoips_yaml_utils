@@ -3,6 +3,8 @@
 
 """Public API for geoips_yaml_utils."""
 
+from ._version import __version__, __version_tuple__
+
 # PyYAML passthrough
 from yaml import *  # noqa: F401, F403
 
