@@ -219,7 +219,12 @@ def test_safe_load_nested_duplicate_key_raises():
                 "/somethingelse/${TEST_VAR_XYZ:tail_default}\n"
                 "    data1: !ENV ${TEST_VAR_XYZ:1.2.3.456}\n"
             ),
-            {"test1": {"data0": "test/somethingelse/tail_default", "data1": "1.2.3.456"}},
+            {
+                "test1": {
+                    "data0": "test/somethingelse/tail_default",
+                    "data1": "1.2.3.456"
+                }
+            },
             id="env_var_overrides_default",
         ),
         pytest.param(
