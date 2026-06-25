@@ -29,15 +29,17 @@ __all__ = [
     "safe_load",
     "safe_load_all",
     "parse_config",
-    # errors (re-exposed for convenience)
-    "DuplicateKeyError",
-    "MissingEnvironmentVariableError",
 ]
 
 
 LOG = logging.getLogger(__name__)
 
+# This regex pattern matches all instances in a YAML node which use the syntax:
+#   ${MY_ENV:/default/value}
 ENV_VAR_PATTERN = re.compile(r".*?\$\{([^}{:]+)(:[^}]+)?\}.*?")
+
+# DEFAULT_SEP separates the env var name from its default.
+#   e.g.  !ENV ${MY_ENV:/default/value}
 DEFAULT_SEP = ":"
 
 # ---------------
