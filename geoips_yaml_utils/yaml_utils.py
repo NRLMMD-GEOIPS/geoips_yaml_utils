@@ -28,7 +28,6 @@ __all__ = [
     # callables
     "safe_load",
     "safe_load_all",
-    "parse_config",
 ]
 
 
