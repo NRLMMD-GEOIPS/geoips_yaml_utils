@@ -42,9 +42,9 @@ import geoips_yaml_utils as yaml
 cfg = yaml.safe_load(open("plugin.yaml"))   # raises DuplicateKeyError on duplicate keys
 ```
 
-Resolving environment variables with parse_config
---------------------------------------------------
-`parse_config` reads a YAML file from a path and resolves any `!ENV` tags by
+Resolving environment variables
+-------------------------------
+The `EnvVarLoader` and `EnvVarLoaderNoDuplicates` loaders resolve `!ENV` tags by
 substituting environment variables. This functionality is adapted from the
 MIT-licensed [pyaml-env](https://github.com/mkaranasou/pyaml_env) project.
 
@@ -71,7 +71,8 @@ with `DB_HOST=db.example.com` exported and `DB_PORT` unset:
 ```python
 import geoips_yaml_utils as yaml
 
-config = yaml.parse_config("config.yaml")
+with open("config.yaml") as f:
+    config = yaml.load(f, Loader=yaml.EnvVarLoaderNoDuplicates)
 # {
 #     "database": {
 #         "host": "db.example.com",
@@ -81,9 +82,9 @@ config = yaml.parse_config("config.yaml")
 # }
 ```
 
-By default `parse_config` also rejects duplicate keys (raising `DuplicateKeyError`).
-Pass `detect_duplicates=False` to keep the `!ENV` resolution but skip that check:
+`EnvVarLoaderNoDuplicates` also rejects duplicate keys (raising `DuplicateKeyError`).
+For `!ENV` resolution without duplicate detection, use `EnvVarLoader` instead:
 
 ```python
-config = yaml.parse_config("config.yaml", detect_duplicates=False)
+config = yaml.load(f, Loader=yaml.EnvVarLoader)
 ```
