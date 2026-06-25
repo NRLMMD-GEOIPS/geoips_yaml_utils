@@ -36,7 +36,11 @@ LOG = logging.getLogger(__name__)
 
 # This regex pattern matches all instances in a YAML node which use the syntax:
 #   ${MY_ENV:/default/value}
-ENV_VAR_PATTERN = re.compile(r".*?\$\{([^}{:]+)(:[^}]+)?\}.*?")
+# This pattern names the two groups "name" & "default"
+# such that the above example would result in the following assignments:
+#   MY_ENV         -> "name"    group
+#   /default/value -> "default" group
+ENV_VAR_PATTERN = re.compile(r".*?\$\{(?P<name>[^}{:]+)(?P<default>:[^}]+)?\}.*?")
 
 # DEFAULT_SEP separates the env var name from its default.
 #   e.g.  !ENV ${MY_ENV:/default/value}
@@ -109,21 +113,21 @@ def _construct_env_var(loader, node):
         If a referenced variable is not set and no default was provided.
     """
     value = loader.construct_scalar(node)
-    matches = ENV_VAR_PATTERN.findall(value)
+    matches = list(ENV_VAR_PATTERN.finditer(value))
     if not matches:
         return value
 
     full_value = value
-    for group in matches:
-        # `group` is a 2-tuple: (var_name, ':default' or '')
-        env_var_name = group[0]
-        env_var_name_with_default = "".join(group)
+    for match in matches:
+        # `match` is a lazy iterator with named groups: "name" & "default"
+        env_var_name = match.group("name")
+        default_segment = match.group("default")
+        env_var_name_with_default = env_var_name + (default_segment or "")
 
         default = None
-        for segment in group:
-            if DEFAULT_SEP in segment:
-                _, default = segment.split(DEFAULT_SEP, 1)
-                break
+        if default_segment:
+            # Remove the DEFAULT_SEP character from the captured group
+            default = default_segment.split(DEFAULT_SEP, 1)[1]
 
         env_value = os.environ.get(env_var_name)
         if env_value is not None:
