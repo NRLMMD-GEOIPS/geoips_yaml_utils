@@ -3,8 +3,10 @@
 
 """Exception classes raised by geoips_yaml_utils."""
 
+from yaml.constructor import ConstructorError
 
-class DuplicateKeyError(Exception):
+
+class DuplicateKeyError(ConstructorError):
     """Raised when a YAML mapping contains duplicate keys."""
 
     pass
