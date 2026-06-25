@@ -10,7 +10,12 @@ class DuplicateKeyError(Exception):
     pass
 
 
-class MissingEnvironmentVariableError(Exception):
+class MissingEnvironmentVariableError(RuntimeError):
     """Raised when an environment variable is referenced without being set."""
 
-    pass
+    def __init__(self, name: str) -> None:
+        self.name = name
+        super().__init__(
+            f"Required environment variable {name!r} is not set "
+            f"and no default value was provided in the YAML !ENV tag"
+        )

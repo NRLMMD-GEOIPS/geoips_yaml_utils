@@ -135,10 +135,7 @@ def _construct_env_var(loader, node):
         elif default is not None:
             substituted = default
         else:
-            raise MissingEnvironmentVariableError(
-                f"Environment variable '{env_var_name}' is not set "
-                f"and no default value was provided in the YAML !ENV tag"
-            )
+            raise MissingEnvironmentVariableError(env_var_name)
 
         full_value = full_value.replace(
             f"${{{env_var_name_with_default}}}",
