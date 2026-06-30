@@ -11,9 +11,9 @@ the rest of the library untouched.
 First, it detects duplicate mapping keys: `safe_load` and `safe_load_all` raise
 `DuplicateKeyError` when a YAML document repeats a key, instead of silently keeping the
 last value the way plain PyYAML does. Second, it resolves environment variables in YAML
-files: `parse_config` (adapted from the MIT-licensed pyaml-env) expands `!ENV ${VAR}`
-and `!ENV ${VAR:default}` tags, raising `MissingEnvironmentVariableError` when a
-referenced variable is unset and has no default.
+files: the `EnvVarLoader` and `EnvVarLoaderNoDuplicates` loaders (adapted from the
+MIT-licensed pyaml-env) expand `!ENV ${VAR}` and `!ENV ${VAR:default}` tags, raising
+`MissingEnvironmentVariableError` when a referenced variable is unset and has no default.
 
 Every other PyYAML symbol (`dump`, `SafeLoader`, `YAMLError`, and so on) passes through
 unchanged, so `geoips_yaml_utils` can serve as the only `yaml` import in a GeoIPS
