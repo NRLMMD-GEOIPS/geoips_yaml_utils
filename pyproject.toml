@@ -49,6 +49,3 @@ sphinxcontrib-typer = { version = "*", optional = true}
 doc = [
     "sphinxcontrib-typer", # Required for building documentation for the CLI, which uses typer
 ]
-
-[tool.black]
-extend-exclude = '_version\.py'
