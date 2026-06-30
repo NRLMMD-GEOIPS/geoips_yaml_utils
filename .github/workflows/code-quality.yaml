@@ -79,4 +79,4 @@ jobs:
         run: uv pip install -e .[doc,lint,test] mypy
 
       - name: Run mypy
-        run: mypy ./src
+        run: mypy ./geoips_yaml_utils
