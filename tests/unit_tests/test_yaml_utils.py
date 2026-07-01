@@ -10,14 +10,7 @@ from geoips_yaml_utils.errors import DuplicateKeyError, MissingEnvironmentVariab
 
 FLAT_UNIQUE = "key1: 1\nkey2: 2"
 
-NESTED_UNIQUE = (
-    "key1:\n"
-    "  subkey1: 1\n"
-    "  subkey2: 2\n"
-    "key2:\n"
-    "  subkey1: 1\n"
-    "  subkey2: 2\n"
-)
+NESTED_UNIQUE = "key1:\n  subkey1: 1\n  subkey2: 2\nkey2:\n  subkey1: 1\n  subkey2: 2\n"
 
 FLAT_DUPLICATE = "key1: 1\nkey1: 2"
 
@@ -38,10 +31,10 @@ MULTI_ENV = "geoips_multi: !ENV '${TEST_VAR_ABC}:${TEST_VAR_XYZ}'"
 MULTI_ENV_DEFAULTS = "geoips_multi: !ENV '${TEST_VAR_ABC:seed}<${TEST_VAR_XYZ:flax}>'"
 
 # Mix of !ENV and plain strings
-MIXED_ENV = "key1: quintuple\n" "key2: !ENV ${TEST_VAR_ABC}\n" "key3: hedgehog\n"
+MIXED_ENV = "key1: quintuple\nkey2: !ENV ${TEST_VAR_ABC}\nkey3: hedgehog\n"
 
 # Duplicate !ENV keys
-ENV_DUPLICATE = "key1: !ENV ${TEST_VAR_ABC}\n" "key1: !ENV ${TEST_VAR_XYZ}\n"
+ENV_DUPLICATE = "key1: !ENV ${TEST_VAR_ABC}\nkey1: !ENV ${TEST_VAR_XYZ}\n"
 
 # Single !ENV with no default, var unset
 SINGLE_ENV_MISSING = "geoips_var: !ENV ${TEST_VAR_NEVER_SET}"
