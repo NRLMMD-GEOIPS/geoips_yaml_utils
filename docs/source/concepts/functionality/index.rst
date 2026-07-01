@@ -14,10 +14,10 @@ the rest of the library untouched.
 
 First, it detects duplicate mapping keys: ``safe_load`` and ``safe_load_all`` raise
 ``DuplicateKeyError`` when a YAML document repeats a key, instead of silently keeping
-the last value the way plain PyYAML does. Second, it resolves environment variables in
-YAML files: the ``EnvVarLoader`` and ``EnvVarLoaderNoDuplicates`` loaders (adapted from
-the MIT-licensed pyaml-env) expand ``!ENV ${VAR}`` and ``!ENV ${VAR:default}`` tags,
-raising ``MissingEnvironmentVariableError`` when a referenced variable is unset and has
+the last value the way plain PyYAML does. Second, it resolves environment variables
+in YAML files: ``parse_config`` (adapted from the MIT-licensed pyaml-env) expand
+``!ENV ${VAR}`` and ``!ENV ${VAR:default}`` tags, raising
+``MissingEnvironmentVariableError`` when a referenced variable is unset and has
 no default.
 
 Every other PyYAML symbol (``dump``, ``SafeLoader``, ``YAMLError``, and so on) passes
@@ -49,10 +49,10 @@ Usage
 
     cfg = yaml.safe_load(open("plugin.yaml"))  # raises DuplicateKeyError on duplicate keys
 
-Resolving environment variables
-===============================
+Resolving environment variables with parse_config
+=================================================
 
-The ``EnvVarLoader`` and ``EnvVarLoaderNoDuplicates`` loaders resolve ``!ENV`` tags by
+``parse_config`` reads a YAML file from a path and resolves ``!ENV`` tags by
 substituting environment variables. This functionality is adapted from the MIT-licensed
 `pyaml-env <https://github.com/mkaranasou/pyaml_env>`_ project.
 
@@ -80,8 +80,7 @@ with ``DB_HOST=db.example.com`` exported and ``DB_PORT`` unset:
 
     import geoips_yaml_utils as yaml
 
-    with open("config.yaml") as f:
-        config = yaml.load(f, Loader=yaml.EnvVarLoaderNoDuplicates)
+    config = yaml.parse_config("config.yaml")
     # {
     #     "database": {
     #         "host": "db.example.com",
@@ -90,9 +89,9 @@ with ``DB_HOST=db.example.com`` exported and ``DB_PORT`` unset:
     #     }
     # }
 
-``EnvVarLoaderNoDuplicates`` also rejects duplicate keys (raising ``DuplicateKeyError``).
-For ``!ENV`` resolution without duplicate detection, use ``EnvVarLoader`` instead:
+By default ``parse_config`` also rejects duplicate keys (raising ``DuplicateKeyError``).
+Pass ``detect_duplicates=False`` to keep the ``!ENV`` resolution but skip that check:
 
 .. code-block:: python
 
-    config = yaml.load(f, Loader=yaml.EnvVarLoader)
+    config = yaml.parse_config("config.yaml", detect_duplicates=False)
