@@ -1,0 +1,22 @@
+enhancement:
+- title: 'Re-adding the parse_config function'
+  description: |
+    Add the function parse_config back into geoips_yaml_utils from history.
+    This function was originally added and then deleted in PR #1.
+    Leaving it out would mean updating call-sites in a large number of other repositories
+  files:
+    deleted:
+    - ''
+    moved:
+    - ''
+    added:
+    - 'docs/source/releases/latest/3-implement-parse_config.yaml'
+    modified:
+    - 'geoips_yaml_utils/yaml_utils.py'
+    - 'tests/unit_tests/test_yaml_utils.py'
+  related-issue:
+    number: 3
+    repo_url: 'https://github.com/NRLMMD-GEOIPS/geoips_yaml_utils'
+  date:
+    start: 2026/07/01
+    finish: null
