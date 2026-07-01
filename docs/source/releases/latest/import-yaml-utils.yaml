@@ -1,0 +1,28 @@
+enhancement:
+- title: 'Import yaml utils from geoips'
+  description: |
+    Moves the YAML handling utilities out of the geoips repo and into this new standalone geoips_yaml_utils package, so they can be installed and reused on their own. The package is a drop-in replacement for import yaml.
+  files:
+    deleted:
+    - ''
+    moved:
+    - ''
+    added:
+    - 'docs/source/releases/import-yaml-utils.yaml'
+    - 'geoips_yaml_utils/__init__.py'
+    - 'geoips_yaml_utils/errors.py'
+    - 'geoips_yaml_utils/yaml_utils.py'
+    - 'tests/integration_tests/test_lint.py'
+    - 'tests/unit_tests/test_yaml_utils.py'
+    - 'docs/source/concepts/functionality/index.rst'
+    - 'docs/source/concepts/index.rst'
+    - 'docs/source/geoips_yaml_utils_api/index.rst'
+    modified:
+    - 'pyproject.toml'
+    - 'README.md'
+  related-issue:
+    number: null
+    repo_url: ''
+  date:
+    start: 2026/06/05
+    finish: today

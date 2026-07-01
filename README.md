@@ -1,41 +1,91 @@
-    # # # This source code is subject to the license referenced at
-    # # # https://github.com/NRLMMD-GEOIPS.
+```
+# # # This source code is subject to the license referenced at
+# # # https://github.com/NRLMMD-GEOIPS.
+```
 
-Pluginify
-=========
+# GeoIPS YAML Utilities
 
-This repository contains everything necessary to fully register YAML and python classes
-and/or modules as valid python plugin objects. A YAML-based plugin object essentially
-acts as a configuration object for a class / module -based python plugin. The python
-based plugins are then responsible for reading, manipulating, or outputting a dataset
-in a certain format. For most python based plugins, we expect this dataset to be a valid
-xarray.DataTree object.
+`geoips_yaml_utils` is the standard YAML interface for GeoIPS. It is a drop-in
+replacement for `import yaml` that adds two safeguards on top of PyYAML while leaving
+the rest of the library untouched.
 
-No valid plugins should be stored in this package. Rather, this package contains all the
-functionality to register, retrieve, and create your plugin objects via a unified
-PluginRegistry class. This package can and is used alongside other packages such as
-[GeoIPS](https://github.com/NRLMMD-GEOIPS/geoips) to handle their plugin-based
-infrastructure.
+First, it detects duplicate mapping keys: `safe_load` and `safe_load_all` raise
+`DuplicateKeyError` when a YAML document repeats a key, instead of silently keeping the
+last value the way plain PyYAML does. Second, it resolves environment variables in YAML
+files: the `EnvVarLoader` and `EnvVarLoaderNoDuplicates` loaders (adapted from the
+MIT-licensed pyaml-env) expand `!ENV ${VAR}` and `!ENV ${VAR:default}` tags, raising
+`MissingEnvironmentVariableError` when a referenced variable is unset and has no default.
 
-Install pluginify package
--------------------------
-Current status:
+Every other PyYAML symbol (`dump`, `SafeLoader`, `YAMLError`, and so on) passes through
+unchanged, so `geoips_yaml_utils` can serve as the only `yaml` import in a GeoIPS
+package. No GeoIPS plugins or domain logic live here; this package is a focused,
+standalone utility intended to provide consistent YAML handling across GeoIPS and its
+plugin packages.
+
+## Install geoips_yaml_utils package
+
+From source:
+
 ```bash
-git clone https://github.com/NRLMMD-GEOIPS/pluginify.git
-# cd to pluginify's top level dir
+git clone https://github.com/NRLMMD-GEOIPS/geoips_yaml_utils.git
+# cd to geoips_yaml_utils's top level dir
 pip install -e .
 ```
-OR
-```bash
-pip install pluginify
+
+## Usage
+
+`geoips_yaml_utils` is a drop-in replacement for `import yaml`. Import it under the
+`yaml` name and the duplicate-key-checking loaders are used automatically:
+
+```python
+import geoips_yaml_utils as yaml
+
+cfg = yaml.safe_load(open("plugin.yaml"))  # raises DuplicateKeyError on duplicate keys
 ```
 
-Use pluginify
--------------
-```bash
-pluginify -h
-# Top level commands without additional args
-pluginify create
-# OR
-pluginify delete
+## Resolving environment variables
+
+The `EnvVarLoader` and `EnvVarLoaderNoDuplicates` loaders resolve `!ENV` tags by
+substituting environment variables. This functionality is adapted from the
+MIT-licensed [pyaml-env](https://github.com/mkaranasou/pyaml_env) project.
+
+Tag a scalar with `!ENV`, then reference variables inside it with `${...}`:
+
+- `${VAR}` is replaced with the value of environment variable `VAR`. If `VAR` is not
+  set, `MissingEnvironmentVariableError` is raised.
+- `${VAR:default}` falls back to `default` when `VAR` is not set. The separator is a
+  colon (`:`), not bash's `:-`.
+- A single scalar may contain multiple references, e.g. `${HOST}:${PORT}`.
+- Resolved values are always strings, since environment variables are strings.
+
+Given `config.yaml`:
+
+```yaml
+database:
+  host: !ENV ${DB_HOST}
+  port: !ENV ${DB_PORT:5432}
+  url: !ENV "${DB_HOST}:${DB_PORT:5432}"
+```
+
+with `DB_HOST=db.example.com` exported and `DB_PORT` unset:
+
+```python
+import geoips_yaml_utils as yaml
+
+with open("config.yaml") as f:
+    config = yaml.load(f, Loader=yaml.EnvVarLoaderNoDuplicates)
+# {
+#     "database": {
+#         "host": "db.example.com",
+#         "port": "5432",
+#         "url": "db.example.com:5432",
+#     }
+# }
+```
+
+`EnvVarLoaderNoDuplicates` also rejects duplicate keys (raising `DuplicateKeyError`).
+For `!ENV` resolution without duplicate detection, use `EnvVarLoader` instead:
+
+```python
+config = yaml.load(f, Loader=yaml.EnvVarLoader)
 ```
