@@ -1,8 +1,9 @@
-    # # # This source code is subject to the license referenced at
-    # # # https://github.com/NRLMMD-GEOIPS.
+```
+# # # This source code is subject to the license referenced at
+# # # https://github.com/NRLMMD-GEOIPS.
+```
 
-GeoIPS YAML Utilities
-=====================
+# GeoIPS YAML Utilities
 
 `geoips_yaml_utils` is the standard YAML interface for GeoIPS. It is a drop-in
 replacement for `import yaml` that adds two safeguards on top of PyYAML while leaving
@@ -21,29 +22,29 @@ package. No GeoIPS plugins or domain logic live here; this package is a focused,
 standalone utility intended to provide consistent YAML handling across GeoIPS and its
 plugin packages.
 
+## Install geoips_yaml_utils package
 
-Install geoips_yaml_utils package
----------------------------------
 From source:
+
 ```bash
 git clone https://github.com/NRLMMD-GEOIPS/geoips_yaml_utils.git
 # cd to geoips_yaml_utils's top level dir
 pip install -e .
 ```
 
-Usage
------
+## Usage
+
 `geoips_yaml_utils` is a drop-in replacement for `import yaml`. Import it under the
 `yaml` name and the duplicate-key-checking loaders are used automatically:
 
 ```python
 import geoips_yaml_utils as yaml
 
-cfg = yaml.safe_load(open("plugin.yaml"))   # raises DuplicateKeyError on duplicate keys
+cfg = yaml.safe_load(open("plugin.yaml"))  # raises DuplicateKeyError on duplicate keys
 ```
 
-Resolving environment variables
--------------------------------
+## Resolving environment variables
+
 The `EnvVarLoader` and `EnvVarLoaderNoDuplicates` loaders resolve `!ENV` tags by
 substituting environment variables. This functionality is adapted from the
 MIT-licensed [pyaml-env](https://github.com/mkaranasou/pyaml_env) project.
