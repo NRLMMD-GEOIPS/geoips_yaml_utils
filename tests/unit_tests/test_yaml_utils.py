@@ -10,7 +10,14 @@ from geoips_yaml_utils.errors import DuplicateKeyError, MissingEnvironmentVariab
 
 FLAT_UNIQUE = "key1: 1\nkey2: 2"
 
-NESTED_UNIQUE = "key1:\n  subkey1: 1\n  subkey2: 2\nkey2:\n  subkey1: 1\n  subkey2: 2\n"
+NESTED_UNIQUE = (
+    "key1:\n"
+    "  subkey1: 1\n"
+    "  subkey2: 2\n"
+    "key2:\n"
+    "  subkey1: 1\n"
+    "  subkey2: 2\n"
+)
 
 FLAT_DUPLICATE = "key1: 1\nkey1: 2"
 
@@ -31,10 +38,10 @@ MULTI_ENV = "geoips_multi: !ENV '${TEST_VAR_ABC}:${TEST_VAR_XYZ}'"
 MULTI_ENV_DEFAULTS = "geoips_multi: !ENV '${TEST_VAR_ABC:seed}<${TEST_VAR_XYZ:flax}>'"
 
 # Mix of !ENV and plain strings
-MIXED_ENV = "key1: quintuple\nkey2: !ENV ${TEST_VAR_ABC}\nkey3: hedgehog\n"
+MIXED_ENV = "key1: quintuple\n" "key2: !ENV ${TEST_VAR_ABC}\n" "key3: hedgehog\n"
 
 # Duplicate !ENV keys
-ENV_DUPLICATE = "key1: !ENV ${TEST_VAR_ABC}\nkey1: !ENV ${TEST_VAR_XYZ}\n"
+ENV_DUPLICATE = "key1: !ENV ${TEST_VAR_ABC}\n" "key1: !ENV ${TEST_VAR_XYZ}\n"
 
 # Single !ENV with no default, var unset
 SINGLE_ENV_MISSING = "geoips_var: !ENV ${TEST_VAR_NEVER_SET}"
@@ -335,26 +342,26 @@ def test_envvarnodup_loader_resolves_env_vars_when_no_duplicates(monkeypatch):
 # ---------------------
 
 
-def test_envvarnodup_loader_resolves_from_file(tmp_path, monkeypatch):
+def test_parse_config_resolves_env_var_from_file(tmp_path, monkeypatch):
     """Verify parse_config reads a YAML file from disk and resolves !ENV tags."""
     monkeypatch.setenv("TEST_VAR_ABC", "harpsicord")
     path = tmp_path / "config.yaml"
     path.write_text(SINGLE_ENV)
-    result = yaml.load(open(path), Loader=yaml.EnvVarLoaderNoDuplicates)
+    result = yaml.parse_config(str(path))
     assert result == {"geoips_var": "harpsicord"}
 
 
-def test_envvarnodup_loader_raises_on_duplicate_from_file(tmp_path, monkeypatch):
+def test_parse_config_detect_duplicates_default_raises(tmp_path, monkeypatch):
     """Verify parse_config defaults to raising DuplicateKeyError on duplicate keys."""
     monkeypatch.setenv("TEST_VAR_ABC", "foo")
     monkeypatch.setenv("TEST_VAR_XYZ", "bar")
     path = tmp_path / "config.yaml"
     path.write_text(ENV_DUPLICATE)
     with pytest.raises(DuplicateKeyError):
-        yaml.load(open(path), Loader=yaml.EnvVarLoaderNoDuplicates)
+        yaml.parse_config(str(path))
 
 
-def test_envvarloader_silent_on_duplicate_from_file(tmp_path, monkeypatch):
+def test_parse_config_detect_duplicates_false_silent(tmp_path, monkeypatch):
     """Verify parse_config(..., detect_duplicates=False) accepts duplicate keys.
 
     The second value silently wins.
@@ -363,5 +370,5 @@ def test_envvarloader_silent_on_duplicate_from_file(tmp_path, monkeypatch):
     monkeypatch.setenv("TEST_VAR_XYZ", "prose")
     path = tmp_path / "config.yaml"
     path.write_text(ENV_DUPLICATE)
-    result = yaml.load(open(path), Loader=yaml.EnvVarLoader)
+    result = yaml.parse_config(str(path), detect_duplicates=False)
     assert result == {"key1": "prose"}
