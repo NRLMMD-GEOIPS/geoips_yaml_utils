@@ -1,0 +1,84 @@
+name: CodeQuality
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_SYSTEM_PYTHON: true
+
+jobs:
+  lint:
+    continue-on-error: true
+    runs-on: ${{ vars.RUNNER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install linters
+        run: |
+          uv pip install ruff blacken-docs mdformat validate-pyproject
+          go install github.com/rhysd/actionlint/cmd/actionlint@latest
+          go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      - name: Ruff (lint)
+        run: ruff check .
+
+      - name: Ruff (format)
+        if: success() || failure()
+        run: ruff format --check .
+
+      - name: Blacken-docs
+        if: success() || failure()
+        run: git ls-files '*.rst' '*.md' | xargs -r blacken-docs --check
+
+      - name: mdformat
+        if: success() || failure()
+        run: mdformat --check .
+
+      - name: actionlint
+        if: success() || failure()
+        run: actionlint
+
+      - name: validate-pyproject
+        if: success() || failure()
+        run: validate-pyproject pyproject.toml
+
+      - name: yamlfmt
+        if: success() || failure()
+        run: yamlfmt -lint
+
+  mypy:
+    continue-on-error: true
+    runs-on: ${{ vars.RUNNER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install package with all extras
+        run: uv pip install -e .[doc,lint,test] mypy
+
+      - name: Run mypy
+        run: mypy ./geoips_yaml_utils

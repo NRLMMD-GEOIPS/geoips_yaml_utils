@@ -17,7 +17,7 @@ env:
 
 jobs:
   check-commits:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER }}
     outputs:
       has_new_commits: ${{ steps.check.outputs.has_new_commits }}
     steps:
@@ -40,7 +40,7 @@ jobs:
   generate-badges:
     needs: check-commits
     if: needs.check-commits.outputs.has_new_commits == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER }}
 
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
       - name: Run mypy
         id: mypy
         continue-on-error: true
-        run: mypy ./src --junit-xml reports/mypy.xml || true
+        run: mypy ./geoips_yaml_utils --junit-xml reports/mypy.xml || true
 
       - name: Generate mypy badge
         run: |
@@ -112,7 +112,7 @@ jobs:
       - name: Run ruff
         id: ruff
         continue-on-error: true
-        run: ruff check ./src --output-format=junit -o reports/ruff.xml || true
+        run: ruff check ./geoips_yaml_utils --output-format=junit -o reports/ruff.xml || true
 
       - name: Generate ruff badge
         run: |
@@ -152,31 +152,6 @@ jobs:
           from genbadge import Badge
           b = Badge(left_txt='install', right_txt='failing', color='red')
           b.write_to('.github/badges/install-badge.svg', use_shields=False)
-          "
-          fi
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Run cspell
-        id: cspell
-        continue-on-error: true
-        run: npx cspell "./src/**/*" --no-progress
-
-      - name: Generate cspell badge
-        run: |
-          if [ "${{ steps.cspell.outcome }}" == "success" ]; then
-            python -c "
-          from genbadge import Badge
-          b = Badge(left_txt='cspell', right_txt='passing', color='brightgreen')
-          b.write_to('.github/badges/cspell-badge.svg', use_shields=False)
-          "
-          else
-            python -c "
-          from genbadge import Badge
-          b = Badge(left_txt='cspell', right_txt='failing', color='red')
-          b.write_to('.github/badges/cspell-badge.svg', use_shields=False)
           "
           fi
 
@@ -234,7 +209,6 @@ jobs:
           echo "| Mypy | ${{ steps.mypy.outcome }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Ruff | ${{ steps.ruff.outcome }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Install | ${{ steps.install.outcome }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| CSpell | ${{ steps.cspell.outcome }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Commitizen | ${{ steps.commitizen.outcome }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Badges committed: ${{ steps.badge_changes.outputs.has_changes }}" >> $GITHUB_STEP_SUMMARY
