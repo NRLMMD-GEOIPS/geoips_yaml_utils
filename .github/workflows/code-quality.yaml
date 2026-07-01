@@ -78,7 +78,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
 
       - name: Install package with all extras
-        run: uv pip install -e .[doc,lint,test] mypy
+        run: uv pip install -e .[doc,lint,test] mypy types-PyYAML
 
       - name: Run mypy
         run: mypy ./geoips_yaml_utils
