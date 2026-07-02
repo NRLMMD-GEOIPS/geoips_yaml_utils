@@ -28,6 +28,7 @@ __all__ = [
     # callables
     "safe_load",
     "safe_load_all",
+    "parse_config",
 ]
 
 
@@ -258,3 +259,36 @@ def safe_load_all(stream, Loader=SafeLoaderNoDuplicates):
         If a duplicate key is detected and the default `Loader` is used.
     """
     return yaml.load_all(stream, Loader=Loader)  # nosec B506
+
+
+def parse_config(path, detect_duplicates=True):
+    """Load a YAML file and resolve any `!ENV` tags.
+
+    Drop-in replacement for `pyaml_env.parse_config(path)` adapted for GeoIPS.
+    Can use either `EnvVarLoader` or `EnvVarLoaderNoDuplicates`, to (optionally)
+    perform duplicate-key detection.
+
+    Parameters
+    ----------
+    path : str
+        Path to a YAML file. File-like objects are not supported in this
+        release.
+    detect_duplicates : bool
+        Flag to control whether or not `parse_config` detects and raises an
+        error to reject mappings with repeated keys. Defaults to `True`.
+
+    Returns
+    -------
+    dict
+        The parsed YAML document with `!ENV` tags resolved.
+
+    Raises
+    ------
+    MissingEnvironmentVariableError
+        If a `!ENV` tag references an unset variable with no default.
+    DuplicateKeyError
+        If `detect_duplicates=True` AND any mapping contains duplicate keys.
+    """
+    loader = EnvVarLoaderNoDuplicates if detect_duplicates else EnvVarLoader
+    with open(path, encoding="utf-8") as conf_data:
+        return yaml.load(conf_data, Loader=loader)  # nosec B506
